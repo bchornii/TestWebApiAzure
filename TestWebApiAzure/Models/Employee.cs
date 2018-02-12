@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace TestWebApiAzure.Models
 {
@@ -7,5 +8,11 @@ namespace TestWebApiAzure.Models
         public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
+        public Employee()
+        {
+            PartitionKey = "US";
+            RowKey = Guid.NewGuid().ToString();
+        }
     }
 }

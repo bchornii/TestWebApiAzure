@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using TestWebApiAzure.BlobStores;
 using TestWebApiAzure.CosmosDbStores;
+using TestWebApiAzure.Models;
 using TestWebApiAzure.TableStores;
 
 namespace TestWebApiAzure.Controllers
@@ -108,11 +109,50 @@ namespace TestWebApiAzure.Controllers
             return Ok(result);
         }
 
-        [HttpGet("employee/{id}")]
-        public async Task<IActionResult> GetAllEmployee(string id)
+        #region Azure Storage Table
+        
+        [HttpGet("employee/{partitionKey}")]
+        public async Task<IActionResult> GetEmployee(
+            string partitionKey)
         {
-            var result = await _employeeStore.GetEmployee(id);
+            var result = await _employeeStore
+                .GetEmployee(partitionKey);
             return Ok(result);
         }
+
+        [HttpGet("employee/{partitionKey}/{rowId}")]
+        public async Task<IActionResult> GetEmployee(
+            string partitionKey, string rowId)
+        {
+            var result = await _employeeStore
+                .GetEmployee(partitionKey, rowId);
+            return Ok(result);
+        }
+
+        [HttpPost("employee")]
+        public async Task<IActionResult> CreateEmployee(
+            [FromBody] Employee[] employees)
+        {
+            await _employeeStore.CreateEmployee(employees);
+            return Ok(employees);
+        }
+
+        [HttpPut("employee/{partitionKey}/{id}")]
+        public async Task<IActionResult> UpdateEmployee(
+            [FromBody] Employee employee)
+        {
+            await _employeeStore.UpdateEmployee(employee);
+            return NoContent();
+        }
+
+        [HttpDelete("employee/{partitionKey}/{id}")]
+        public async Task<IActionResult> DeleteEmployee(
+            [FromBody] Employee employee)
+        {
+            await _employeeStore.DeleteEmployee(employee);
+            return NoContent();
+        }
+
+        #endregion
     }
 }
