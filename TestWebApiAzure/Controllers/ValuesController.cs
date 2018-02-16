@@ -18,18 +18,23 @@ namespace TestWebApiAzure.Controllers
     {
         private readonly AppSettings _appSettings;
         private readonly FamiliesStore _familiesStore;
-        private readonly ImageStore _imageStore;
-        private readonly EmployeeStore _employeeStore;
+        private readonly ImageBlobStore _imageStore;
+        private readonly EmployeeTableStore _employeeStore;
+        private readonly TasksQueueStore _queueStore;
 
         public ValuesController(IOptions<AppSettings> appOptions)
         {
             _appSettings = appOptions.Value;      
             _familiesStore = new FamiliesStore();
-            _imageStore = new ImageStore();
-            _employeeStore = new EmployeeStore();
+            _imageStore = new ImageBlobStore();
+            _employeeStore = new EmployeeTableStore();
+            _queueStore = new TasksQueueStore();
         }
 
         // Get data from Azure SQL Db
+
+        #region Azure Sql Db
+
         [HttpGet]
         public async Task<IEnumerable<string>> Get()
         {
@@ -37,24 +42,42 @@ namespace TestWebApiAzure.Controllers
             {
                 var result = await connection.QueryAsync<string>("SELECT name FROM section_type");
                 return result;
-            }            
+            }
         }
 
-        // Get all JSON files from ComsmosDB
+        #endregion
+
+        #region Azure CosmosDB
+        
         [HttpGet("families")]
         public IActionResult GetFamilies()
         {
             var f = _familiesStore.GetFamilies();
             return Ok(f);
         }
-
-        // Get JSON file from CosmosDB by id
+        
         [HttpGet("families/{id}")]
         public IActionResult GetFamily(string id)
         {
             var f = _familiesStore.GetFamily(id);
             return Ok(f);
         }
+
+        [HttpPost]
+        public async Task Post([FromBody]string value)
+        {
+            // Create a Family object.
+            var mother = new Parent { familyName = "Wakefield", givenName = "Robin" };
+            var father = new Parent { familyName = "Miller", givenName = "Ben" };
+            var child = new Child { familyName = "Merriam", givenName = "Jesse", gender = "female", grade = 1 };
+            var pet = new Pet { givenName = "Fluffy" };
+            var address = new Address { state = "NY", county = "Manhattan", city = "NY" };
+            var family = new Family { parents = new[] { mother, father }, children = new[] { child }, isRegistered = false };
+
+            await _familiesStore.InsertFamily(new List<Family> { family });
+        }
+
+        #endregion        
         
         // Deployment slots test
         [HttpGet("{id}")]
@@ -68,27 +91,13 @@ namespace TestWebApiAzure.Controllers
         public IActionResult GetError()
         {
             throw new NotImplementedException("This feature has not been implemented");
-        }
+        }       
 
-        // Save JSON document into CosmosDB
-        [HttpPost]
-        public async Task Post([FromBody]string value)
-        {
-            // Create a Family object.
-            var mother = new Parent { familyName = "Wakefield", givenName = "Robin" };
-            var father = new Parent { familyName = "Miller", givenName = "Ben" };
-            var child = new Child { familyName = "Merriam", givenName = "Jesse", gender = "female", grade = 1 };
-            var pet = new Pet { givenName = "Fluffy" };
-            var address = new Address { state = "NY", county = "Manhattan", city = "NY" };
-            var family = new Family { parents = new[] { mother, father }, children = new[] { child }, isRegistered = false };
+        #region Azure Blob Storage
 
-            await _familiesStore.InsertFamily(new List<Family> {family});
-        }
-
-        // Upload file to Azure Blob storage
-        [HttpPost("upload")]        
+        [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file)
-        {            
+        {
             var id = await _imageStore.SaveImage(file.OpenReadStream());
             return RedirectToAction("GetUploadedImageUrl", new { imageId = id });
         }
@@ -109,8 +118,10 @@ namespace TestWebApiAzure.Controllers
             return Ok(result);
         }
 
+        #endregion
+
         #region Azure Storage Table
-        
+
         [HttpGet("employee/{partitionKey}")]
         public async Task<IActionResult> GetEmployee(
             string partitionKey)
@@ -153,6 +164,30 @@ namespace TestWebApiAzure.Controllers
             return NoContent();
         }
 
+        #endregion
+
+        #region Azure Queue
+        [HttpPost("task")]
+        public async Task<IActionResult> CreateMessage(
+            [FromBody] object msg)
+        {
+            await _queueStore.QueueMessage(msg);
+            return Ok();
+        }
+
+        [HttpGet("task/peek")]
+        public async Task<IActionResult> PeekMessage()
+        {
+            var result = await _queueStore.PeekMessage();
+            return Ok(result);
+        }
+
+        [HttpGet("task")]
+        public async Task<IActionResult> GetMessage()
+        {
+            var result = await _queueStore.GetMessage();
+            return Ok(result);
+        }
         #endregion
     }
 }

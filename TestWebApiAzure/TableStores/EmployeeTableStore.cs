@@ -7,14 +7,14 @@ using TestWebApiAzure.Models;
 
 namespace TestWebApiAzure.TableStores
 {
-    public class EmployeeStore
+    public class EmployeeTableStore
     {
         private readonly CloudTableClient _client;
         private readonly Uri _baseUri = new Uri("https://testwebapistore.table.core.windows.net/");
 
         private CloudTable EmployeeTable => _client.GetTableReference("employees");
 
-        public EmployeeStore()
+        public EmployeeTableStore()
         {
             _client = new CloudTableClient(_baseUri, new StorageCredentials("testwebapistore",
                 "pHuPKdWxMfzmWvHA9XcooKvzrtUaLDswgZkGTLqdn15lJnf6sukra+NVPd45Cvl0GkwykWmL16qc5NGawlzbUQ=="));
