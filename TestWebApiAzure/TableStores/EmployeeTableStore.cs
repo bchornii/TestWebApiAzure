@@ -14,10 +14,10 @@ namespace TestWebApiAzure.TableStores
 
         private CloudTable EmployeeTable => _client.GetTableReference("employees");
 
-        public EmployeeTableStore()
+        public EmployeeTableStore(string storageAccountKey)
         {
-            _client = new CloudTableClient(_baseUri, new StorageCredentials("testwebapistore",
-                "pHuPKdWxMfzmWvHA9XcooKvzrtUaLDswgZkGTLqdn15lJnf6sukra+NVPd45Cvl0GkwykWmL16qc5NGawlzbUQ=="));
+            _client = new CloudTableClient(_baseUri, 
+                new StorageCredentials("testwebapistore", storageAccountKey));
         }
 
         public async Task<IReadOnlyCollection<Employee>> GetEmployee(string partitionKey)

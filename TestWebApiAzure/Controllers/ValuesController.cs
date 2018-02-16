@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using TestWebApiAzure.BlobStores;
 using TestWebApiAzure.CosmosDbStores;
@@ -26,12 +27,10 @@ namespace TestWebApiAzure.Controllers
         {
             _appSettings = appOptions.Value;      
             _familiesStore = new FamiliesStore();
-            _imageStore = new ImageBlobStore();
-            _employeeStore = new EmployeeTableStore();
-            _queueStore = new TasksQueueStore();
-        }
-
-        // Get data from Azure SQL Db
+            _imageStore = new ImageBlobStore(_appSettings.AzTestWebApiStoreKey);
+            _employeeStore = new EmployeeTableStore(_appSettings.AzTestWebApiStoreKey);
+            _queueStore = new TasksQueueStore(_appSettings.AzTestWebApiStoreKey);
+        }        
 
         #region Azure Sql Db
 

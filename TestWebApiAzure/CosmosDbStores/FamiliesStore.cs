@@ -10,7 +10,7 @@ namespace TestWebApiAzure.CosmosDbStores
     public class FamiliesStore
     {
         private const string EndpointUrl = "https://testwebapidocdb.documents.azure.com:443/";
-        private const string PrimaryKey = "axtbeQJTKErHbzLuXj12jWshBJAV5MnUKlqHS4uTJsSBYe7LEsH1wAWi2A7Xm4xY08BJbaKX9ehMXgr8j92hWw==";
+        private const string PrimaryKey = "";
         private readonly DocumentClient _client;
         private readonly Uri _familiesLink;
 

@@ -15,10 +15,10 @@ namespace TestWebApiAzure.BlobStores
 
         private CloudBlobContainer ImageContainer => _client.GetContainerReference("images");
 
-        public ImageBlobStore()
+        public ImageBlobStore(string storageAccountKey)
         {
-            _client = new CloudBlobClient(_baseUri, new StorageCredentials("testwebapistore", 
-                "pHuPKdWxMfzmWvHA9XcooKvzrtUaLDswgZkGTLqdn15lJnf6sukra+NVPd45Cvl0GkwykWmL16qc5NGawlzbUQ=="));
+            _client = new CloudBlobClient(_baseUri, 
+                new StorageCredentials("testwebapistore",storageAccountKey));
         }
 
         public async Task<string> SaveImage(Stream stream)

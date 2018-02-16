@@ -3,6 +3,7 @@
     public class AppSettings
     {
         public string AppName { get; set; }
+        public string AzTestWebApiStoreKey { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
     }
 

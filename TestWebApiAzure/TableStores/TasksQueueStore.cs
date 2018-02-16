@@ -13,10 +13,10 @@ namespace TestWebApiAzure.TableStores
 
         private CloudQueue TasksQueue => _client.GetQueueReference("tasks");
 
-        public TasksQueueStore()
+        public TasksQueueStore(string storageAccountKey)
         {
-            _client = new CloudQueueClient(_baseUri, new StorageCredentials("testwebapistore",
-                "pHuPKdWxMfzmWvHA9XcooKvzrtUaLDswgZkGTLqdn15lJnf6sukra+NVPd45Cvl0GkwykWmL16qc5NGawlzbUQ=="));
+            _client = new CloudQueueClient(_baseUri, 
+                new StorageCredentials("testwebapistore", storageAccountKey));
         }
 
         public async Task QueueMessage(object msg)
